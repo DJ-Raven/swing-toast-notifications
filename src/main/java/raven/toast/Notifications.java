@@ -206,7 +206,7 @@ public class Notifications {
     }
 
     public enum Type {
-        SUCCESS, INFO, WARNING, ERROR,
+        SUCCESS, INFO, WARNING, ERROR
     }
 
     public enum Location {
