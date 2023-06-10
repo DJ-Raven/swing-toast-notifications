@@ -37,11 +37,12 @@ import java.util.function.Consumer;
  * Toast.useEffect                      boolean     true   (default)
  * Toast.effectWidth                    float       0.5f    (default)   0.5f as 50%
  * Toast.effectOpacity                  float       0.2f    (default)   0 to 1
+ * Toast.effectAlignment                String      left    (default)   left, right
  * Toast.effectColor                    Color
  * Toast.success.effectColor            Color
+ * Toast.info.effectColor               Color
  * Toast.warning.effectColor            Color
  * Toast.error.effectColor              Color
- * Toast.effectAlignment                String      left    (default)   left, right
  * <p>
  * Toast.outlineColor                   Color
  * Toast.foreground                     Color
@@ -50,6 +51,9 @@ import java.util.function.Consumer;
  * Toast.success.outlineColor           Color
  * Toast.success.foreground             Color
  * Toast.success.background             Color
+ * Toast.info.outlineColor              Color
+ * Toast.info.foreground                Color
+ * Toast.info.background                Color
  * Toast.warning.outlineColor           Color
  * Toast.warning.foreground             Color
  * Toast.warning.background             Color
