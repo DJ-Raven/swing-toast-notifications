@@ -2,6 +2,9 @@
 
 This swing toast notifications use for java desktop application gui swing with flatlaf
 
+<img src="https://github.com/DJ-Raven/swing-toast-notifications/assets/58245926/7c3725c2-c5a7-41d1-bd6e-b608da907935" alt="sample dark" width="450"/>
+<img src="https://github.com/DJ-Raven/swing-toast-notifications/assets/58245926/172043b8-0a1d-4bbe-b90b-edbd27a20258" alt="sample light" width="450"/>
+
 ## Getting started
 
 - Import flatlaf library and flatlaf extras to your project
@@ -124,4 +127,4 @@ UIManager.put(ToastClientProperties.TOAST_INFO_ICON, new FlatSVGIcon("raven/toas
 Visit flatlaf for more
 
 - [Flatlaf github](https://github.com/JFormDesigner/FlatLaf)
-- [Flatlaf doc](https://www.formdev.com/flatlaf/customizing/)
+- [Flatlaf documentation](https://www.formdev.com/flatlaf/customizing/)
