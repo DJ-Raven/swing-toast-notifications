@@ -58,6 +58,7 @@ public enum Location {
 Create flatlaf file properties `FlatLaf.properties`
 
 ```
+Toast.background=lighten(@background,5%)
 Toast.outlineWidth = 1
 Toast.success.foreground = rgb(53,198,203)
 Toast.frameInsets = 15,15,15,15
