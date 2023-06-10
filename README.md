@@ -110,7 +110,7 @@ Toast.frameInsets = 15,15,15,15
 //  Using flatlaf extras to crate flat svg icon
 //  Use this code in main method
 
-UIManager.put("Toast.error.icon", new FlatSVGIcon("raven/toast/error.svg"));
+UIManager.put(ToastClientProperties.TOAST_INFO_ICON, new FlatSVGIcon("raven/toast/error.svg"));
 ```
 
 | Key               | Description  | Value Type    |
