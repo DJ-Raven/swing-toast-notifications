@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="swing-toast-notifications:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/swing_toast_notifications_jar</output-path>
+    <root id="archive" name="swing-toast-notifications.jar">
+      <element id="module-output" name="swing-toast-notifications" />
+    </root>
+  </artifact>
+</component>
