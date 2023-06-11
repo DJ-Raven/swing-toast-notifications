@@ -22,7 +22,7 @@ public class ToastNotificationPanel extends JPanel {
 
     private void installPropertyStyle() {
         String key = getKey();
-        String outlineColor = toTextColor(getDefaultOutlineColor());
+        String outlineColor = toTextColor(getDefaultColor());
         String outline = convertsKey(key, "outlineColor", outlineColor);
         putClientProperty(FlatClientProperties.STYLE, "" +
                 "background:" + convertsKey(key, "background", "@background") + ";" +
@@ -61,7 +61,7 @@ public class ToastNotificationPanel extends JPanel {
 
     public void set(Notifications.Type type, String message) {
         this.type = type;
-        labelIcon.setIcon(getIcon());
+        labelIcon.setIcon(getDefaultIcon());
         textArea.setText(message);
         installPropertyStyle();
     }
@@ -71,7 +71,7 @@ public class ToastNotificationPanel extends JPanel {
         removeDialogBackground();
     }
 
-    private Color getDefaultOutlineColor() {
+    public Color getDefaultColor() {
         if (type == Notifications.Type.SUCCESS) {
             return Color.decode("#2e7d32");
         } else if (type == Notifications.Type.INFO) {
@@ -87,15 +87,7 @@ public class ToastNotificationPanel extends JPanel {
         return "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")";
     }
 
-    private Color getOutlineColor(String key) {
-        Color color = UIManager.getColor("Toast." + key + ".outlineColor");
-        if (color != null) {
-            return color;
-        }
-        return getDefaultOutlineColor();
-    }
-
-    private Icon getIcon() {
+    public Icon getDefaultIcon() {
         String key = getKey();
         Icon icon = UIManager.getIcon("Toast." + key + ".icon");
         if (icon != null) {
@@ -103,12 +95,12 @@ public class ToastNotificationPanel extends JPanel {
         }
         FlatSVGIcon svgIcon = new FlatSVGIcon("raven/toast/svg/" + key + ".svg");
         FlatSVGIcon.ColorFilter colorFilter = new FlatSVGIcon.ColorFilter();
-        colorFilter.add(new Color(150, 150, 150), getDefaultOutlineColor());
+        colorFilter.add(new Color(150, 150, 150), getDefaultColor());
         svgIcon.setColorFilter(colorFilter);
         return svgIcon;
     }
 
-    private String getKey() {
+    public String getKey() {
         if (type == Notifications.Type.SUCCESS) {
             return "success";
         } else if (type == Notifications.Type.INFO) {

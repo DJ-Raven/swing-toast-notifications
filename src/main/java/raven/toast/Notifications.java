@@ -34,7 +34,7 @@ import java.util.function.Consumer;
  * Toast.shadowOpacity                  float       0.1f    (default)
  * Toast.shadowInsets                   Insets      0,0,6,6 (default)
  * <p>
- * Toast.useEffect                      boolean     true   (default)
+ * Toast.useEffect                      boolean     true    (default)
  * Toast.effectWidth                    float       0.5f    (default)   0.5f as 50%
  * Toast.effectOpacity                  float       0.2f    (default)   0 to 1
  * Toast.effectAlignment                String      left    (default)   left, right
@@ -186,6 +186,12 @@ public class Notifications {
         }
     }
 
+    protected ToastNotificationPanel createNotification(Type type, String message) {
+        ToastNotificationPanel toastNotificationPanel = new ToastNotificationPanel();
+        toastNotificationPanel.set(type, message);
+        return toastNotificationPanel;
+    }
+
     private synchronized void updateList(Location key, NotificationAnimation values, boolean add) {
         if (add) {
             if (lists.containsKey(key)) {
@@ -232,9 +238,8 @@ public class Notifications {
             installDefault();
             this.location = location;
             window = new JWindow(frame);
-            ToastNotificationPanel toastNotificationPanel = new ToastNotificationPanel();
+            ToastNotificationPanel toastNotificationPanel = createNotification(type, message);
             toastNotificationPanel.putClientProperty(ToastClientProperties.TOAST_CLOSE_CALLBACK, (Consumer) o -> close());
-            toastNotificationPanel.set(type, message);
             window.setContentPane(toastNotificationPanel);
             window.setFocusableWindowState(false);
             toastNotificationPanel.setDialog(window);
@@ -255,7 +260,6 @@ public class Notifications {
             horizontalSpace = FlatUIUtils.getUIInt("Toast.horizontalGap", 10);
             animationMove = FlatUIUtils.getUIInt("Toast.animationMove", 10);
         }
-
 
         public void start(long duration) {
             int animation = FlatUIUtils.getUIInt("Toast.animation", 200);

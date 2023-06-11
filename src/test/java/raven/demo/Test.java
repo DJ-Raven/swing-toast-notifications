@@ -21,6 +21,8 @@ public class Test extends JFrame {
         getContentPane().setLayout(new FlowLayout(FlowLayout.LEADING));
         JButton button = new JButton("Show");
         Notifications.getInstance().setJFrame(this);
+        CustomNotification customNotification = new CustomNotification();
+        customNotification.setJFrame(this);
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
