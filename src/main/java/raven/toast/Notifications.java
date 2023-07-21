@@ -29,6 +29,7 @@ import java.util.function.Consumer;
  * Toast.animationResolution            int         5       (default)
  * Toast.animationMove                  int         10      (default)
  * Toast.minimumWidth                   int         50      (default)
+ * Toast.maximumWidth                   int         -1      (default)   -1 as not set
  * <p>
  * Toast.shadowColor                    Color
  * Toast.shadowOpacity                  float       0.1f    (default)
@@ -242,6 +243,7 @@ public class Notifications {
             toastNotificationPanel.putClientProperty(ToastClientProperties.TOAST_CLOSE_CALLBACK, (Consumer) o -> close());
             window.setContentPane(toastNotificationPanel);
             window.setFocusableWindowState(false);
+            window.pack();
             toastNotificationPanel.setDialog(window);
         }
 
@@ -252,7 +254,7 @@ public class Notifications {
             window.setBackground(new Color(0, 0, 0, 0));
             window.setContentPane(component);
             window.setFocusableWindowState(false);
-            window.setSize(component.getPreferredSize());
+            //   window.setSize(component.getPreferredSize());
         }
 
         private void installDefault() {

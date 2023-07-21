@@ -36,6 +36,8 @@ public class ToastPanelUI extends BasicPanelUI implements StyleableUI, PropertyC
     @Styleable
     protected int minimumWidth;
     @Styleable
+    protected int maximumWidth;
+    @Styleable
     protected int arc;
     @Styleable
     protected int outlineWidth;
@@ -90,6 +92,7 @@ public class ToastPanelUI extends BasicPanelUI implements StyleableUI, PropertyC
         iconTextGap = FlatUIUtils.getUIInt(prefix + ".iconTextGap", 5);
         closeButtonGap = FlatUIUtils.getUIInt(prefix + ".closeButtonGap", 5);
         minimumWidth = FlatUIUtils.getUIInt(prefix + ".minimumWidth", 50);
+        maximumWidth = FlatUIUtils.getUIInt(prefix + ".maximumWidth", -1);
         arc = FlatUIUtils.getUIInt(prefix + ".arc", 20);
         outlineWidth = FlatUIUtils.getUIInt(prefix + ".outlineWidth", 0);
         outlineColor = FlatUIUtils.getUIColor(prefix + ".outlineColor", "Component.focusColor");
@@ -306,7 +309,7 @@ public class ToastPanelUI extends BasicPanelUI implements StyleableUI, PropertyC
                     height = Math.max(height, closeButton.getPreferredSize().height);
                 }
                 height += (insets.top + insets.bottom);
-                width = Math.max(minimumWidth, width);
+                width = Math.max(minimumWidth, maximumWidth == -1 ? width : Math.min(maximumWidth, width));
                 return new Dimension(width, height);
             }
         }
@@ -316,6 +319,17 @@ public class ToastPanelUI extends BasicPanelUI implements StyleableUI, PropertyC
             synchronized (parent.getTreeLock()) {
                 return new Dimension(0, 0);
             }
+        }
+
+        private int getMaxWidth(int insets) {
+            int width = Math.max(maximumWidth, minimumWidth) - insets;
+            if (iconComponent != null) {
+                width -= (iconComponent.getPreferredSize().width + UIScale.scale(iconTextGap));
+            }
+            if (closeButton != null) {
+                width -= (UIScale.scale(closeButtonGap) + closeButton.getPreferredSize().width);
+            }
+            return width;
         }
 
         @Override
@@ -333,7 +347,7 @@ public class ToastPanelUI extends BasicPanelUI implements StyleableUI, PropertyC
                     height = iconH;
                 }
                 if (component != null) {
-                    int cW = component.getPreferredSize().width;
+                    int cW = maximumWidth == -1 ? component.getPreferredSize().width : Math.min(component.getPreferredSize().width, getMaxWidth(insets.left + insets.right));
                     int cH = component.getPreferredSize().height;
                     x += UIScale.scale(iconTextGap);
                     component.setBounds(x, y, cW, cH);

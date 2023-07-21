@@ -76,6 +76,7 @@ Toast.frameInsets = 15,15,15,15
 | Toast.animationResolution |  | int | 5 |
 | Toast.animationMove |  | int | 10 |
 | Toast.minimumWidth |  | int | 50 |
+| Toast.maximumWidth | -1 as not set | int | -1 |
 | Toast.shadowColor |  | Color |  |
 | Toast.shadowOpacity | 0 to 1f | float | 0.1f |
 | Toast.shadowInsets |  | Insets | 0,0,6,6 |

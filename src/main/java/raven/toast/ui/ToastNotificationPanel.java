@@ -12,7 +12,7 @@ public class ToastNotificationPanel extends JPanel {
 
     protected JWindow window;
     protected JLabel labelIcon;
-    protected JTextArea textArea;
+    protected JTextPane textPane;
 
     private Notifications.Type type;
 
@@ -50,19 +50,19 @@ public class ToastNotificationPanel extends JPanel {
 
     private void installDefault() {
         labelIcon = new JLabel();
-        textArea = new JTextArea("Hello my name\nRaven");
-        textArea.setOpaque(false);
-        textArea.setWrapStyleWord(true);
-        textArea.setFocusable(false);
-        textArea.setCursor(Cursor.getDefaultCursor());
+        textPane = new JTextPane();
+        textPane.setText("Hello!\nToast Notification");
+        textPane.setOpaque(false);
+        textPane.setFocusable(false);
+        textPane.setCursor(Cursor.getDefaultCursor());
         putClientProperty(ToastClientProperties.TOAST_ICON, labelIcon);
-        putClientProperty(ToastClientProperties.TOAST_COMPONENT, textArea);
+        putClientProperty(ToastClientProperties.TOAST_COMPONENT, textPane);
     }
 
     public void set(Notifications.Type type, String message) {
         this.type = type;
         labelIcon.setIcon(getDefaultIcon());
-        textArea.setText(message);
+        textPane.setText(message);
         installPropertyStyle();
     }
 
