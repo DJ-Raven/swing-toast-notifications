@@ -71,6 +71,7 @@ Toast.frameInsets = 15,15,15,15
 | Toast.closeButtonGap |  | int | 5 |
 | Toast.arc |  | int | 20 |
 | Toast.horizontalGap |  | int | 10 |
+| Toast.limit | -1 as unlimited | int | -1 |
 | Toast.duration |  | long | 2500 |
 | Toast.animation |  | int | 200 |
 | Toast.animationResolution |  | int | 5 |
@@ -130,3 +131,9 @@ Visit flatlaf for more
 
 - [Flatlaf github](https://github.com/JFormDesigner/FlatLaf)
 - [Flatlaf documentation](https://www.formdev.com/flatlaf/customizing/)
+
+### Update Note
+- `version 1.0.1`
+  - add properties `Toast.maximumWidth`
+  - add properties `Toast.limit`
+  - add method `void clearHold()` and `void clearHold(Location location)`

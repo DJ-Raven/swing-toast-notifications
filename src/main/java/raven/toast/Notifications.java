@@ -4,6 +4,7 @@ import com.formdev.flatlaf.ui.FlatUIUtils;
 import com.formdev.flatlaf.util.Animator;
 import com.formdev.flatlaf.util.UIScale;
 import raven.toast.ui.ToastNotificationPanel;
+import raven.toast.util.NotificationHolder;
 import raven.toast.util.UIUtils;
 
 import javax.swing.*;
@@ -24,6 +25,7 @@ import java.util.function.Consumer;
  * Toast.arc                            int         20      (default)
  * Toast.horizontalGap                  int         10      (default)
  * <p>
+ * Toast.limit                          int         -1      (default)   -1 as unlimited
  * Toast.duration                       long        2500    (default)
  * Toast.animation                      int         200     (default)
  * Toast.animationResolution            int         5       (default)
@@ -86,6 +88,7 @@ public class Notifications {
     private static Notifications instance;
     private JFrame frame;
     private final Map<Location, List<NotificationAnimation>> lists = new HashMap<>();
+    private final NotificationHolder notificationHolder = new NotificationHolder();
 
     private ComponentListener windowEvent;
 
@@ -119,6 +122,11 @@ public class Notifications {
         return instance;
     }
 
+    private int getCurrentShowCount(Location location) {
+        List list = lists.get(location);
+        return list == null ? 0 : list.size();
+    }
+
     private synchronized void move(Rectangle rectangle) {
         for (Map.Entry<Location, List<NotificationAnimation>> set : lists.entrySet()) {
             for (int i = 0; i < set.getValue().size(); i++) {
@@ -148,7 +156,7 @@ public class Notifications {
     }
 
     public void show(Type type, Location location, long duration, String message) {
-        new NotificationAnimation(type, location, message).start(duration);
+        initStart(new NotificationAnimation(type, location, duration, message), duration);
     }
 
     public void show(JComponent component) {
@@ -161,10 +169,31 @@ public class Notifications {
     }
 
     public void show(Location location, long duration, JComponent component) {
-        new NotificationAnimation(location, component).start(duration);
+        initStart(new NotificationAnimation(location, duration, component), duration);
+    }
+
+    private synchronized boolean initStart(NotificationAnimation notificationAnimation, long duration) {
+        int limit = FlatUIUtils.getUIInt("Toast.limit", -1);
+        if (limit == -1 || getCurrentShowCount(notificationAnimation.getLocation()) < limit) {
+            notificationAnimation.start();
+            return true;
+        } else {
+            notificationHolder.hold(notificationAnimation);
+            return false;
+        }
+    }
+
+    private synchronized void notificationClose(NotificationAnimation notificationAnimation) {
+        NotificationAnimation hold = notificationHolder.getHold(notificationAnimation.getLocation());
+        if (hold != null) {
+            if (initStart(hold, hold.getDuration())) {
+                notificationHolder.removeHold(hold);
+            }
+        }
     }
 
     public void clearAll() {
+        notificationHolder.clearHold();
         for (Map.Entry<Location, List<NotificationAnimation>> set : lists.entrySet()) {
             for (int i = 0; i < set.getValue().size(); i++) {
                 NotificationAnimation an = set.getValue().get(i);
@@ -176,6 +205,7 @@ public class Notifications {
     }
 
     public void clear(Location location) {
+        notificationHolder.clearHold(location);
         List<NotificationAnimation> list = lists.get(location);
         if (list != null) {
             for (int i = 0; i < list.size(); i++) {
@@ -185,6 +215,14 @@ public class Notifications {
                 }
             }
         }
+    }
+
+    public void clearHold() {
+        notificationHolder.clearHold();
+    }
+
+    public void clearHold(Location location) {
+        notificationHolder.clearHold(location);
     }
 
     protected ToastNotificationPanel createNotification(Type type, String message) {
@@ -220,7 +258,7 @@ public class Notifications {
         TOP_LEFT, TOP_CENTER, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
     }
 
-    private class NotificationAnimation {
+    public class NotificationAnimation {
 
         private JWindow window;
         private Animator animator;
@@ -229,15 +267,17 @@ public class Notifications {
         private int x;
         private int y;
         private Location location;
+        private long duration;
         private Insets frameInsets;
         private int horizontalSpace;
         private int animationMove;
         private boolean top;
         private boolean close = false;
 
-        public NotificationAnimation(Type type, Location location, String message) {
+        public NotificationAnimation(Type type, Location location, long duration, String message) {
             installDefault();
             this.location = location;
+            this.duration = duration;
             window = new JWindow(frame);
             ToastNotificationPanel toastNotificationPanel = createNotification(type, message);
             toastNotificationPanel.putClientProperty(ToastClientProperties.TOAST_CLOSE_CALLBACK, (Consumer) o -> close());
@@ -247,14 +287,15 @@ public class Notifications {
             toastNotificationPanel.setDialog(window);
         }
 
-        public NotificationAnimation(Location location, JComponent component) {
+        public NotificationAnimation(Location location, long duration, JComponent component) {
             installDefault();
             this.location = location;
+            this.duration = duration;
             window = new JWindow(frame);
             window.setBackground(new Color(0, 0, 0, 0));
             window.setContentPane(component);
             window.setFocusableWindowState(false);
-            //   window.setSize(component.getPreferredSize());
+            window.setSize(component.getPreferredSize());
         }
 
         private void installDefault() {
@@ -263,7 +304,7 @@ public class Notifications {
             animationMove = FlatUIUtils.getUIInt("Toast.animationMove", 10);
         }
 
-        public void start(long duration) {
+        public void start() {
             int animation = FlatUIUtils.getUIInt("Toast.animation", 200);
             int resolution = FlatUIUtils.getUIInt("Toast.animationResolution", 5);
             animator = new Animator(animation, new Animator.TimingTarget() {
@@ -296,6 +337,7 @@ public class Notifications {
                     } else {
                         updateList(location, NotificationAnimation.this, false);
                         window.dispose();
+                        notificationClose(NotificationAnimation.this);
                     }
                 }
             });
@@ -403,6 +445,14 @@ public class Notifications {
             } catch (InterruptedException e) {
                 System.err.println(e);
             }
+        }
+
+        public Location getLocation() {
+            return location;
+        }
+
+        public long getDuration() {
+            return duration;
         }
     }
 }
