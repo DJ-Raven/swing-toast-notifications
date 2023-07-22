@@ -105,7 +105,7 @@ public class ToastPanelUI extends BasicPanelUI implements StyleableUI, PropertyC
         effectWidth = FlatUIUtils.getUIFloat(prefix + ".effectWidth", 0.5f);
         effectOpacity = FlatUIUtils.getUIFloat(prefix + ".effectOpacity", 0.2f);
         effectAlignment = UIUtils.getString(prefix + ".effectAlignment", "left");
-        p.setBackground(FlatUIUtils.getUIColor(prefix + ".background", "@background"));
+        p.setBackground(FlatUIUtils.getUIColor(prefix + ".background", "Panel.background"));
         p.setBorder(createDefaultBorder());
         LookAndFeel.installProperty(p, "opaque", false);
     }

@@ -25,7 +25,7 @@ public class ToastNotificationPanel extends JPanel {
         String outlineColor = toTextColor(getDefaultColor());
         String outline = convertsKey(key, "outlineColor", outlineColor);
         putClientProperty(FlatClientProperties.STYLE, "" +
-                "background:" + convertsKey(key, "background", "@background") + ";" +
+                "background:" + convertsKey(key, "background", "$Panel.background") + ";" +
                 "outlineColor:" + outline + ";" +
                 "effectColor:" + convertsKey(key, "effectColor", outline));
     }

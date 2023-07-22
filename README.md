@@ -137,3 +137,6 @@ Visit flatlaf for more
   - add properties `Toast.maximumWidth`
   - add properties `Toast.limit`
   - add method `void clearHold()` and `void clearHold(Location location)`
+### Fixed Note
+- `version 1.0.1`
+  - fixed notification style properties background
