@@ -49,7 +49,7 @@ public class Test extends JFrame {
         buttonClear.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Notifications.getInstance().clearHold();
+                Notifications.getInstance().clearAll();
             }
         });
         getContentPane().add(buttonClear);
