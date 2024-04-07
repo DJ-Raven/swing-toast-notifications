@@ -1,9 +1,9 @@
 package raven.demo;
 
-import com.formdev.flatlaf.FlatDarculaLaf;
-import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import raven.toast.Notifications;
 import raven.toast.ui.ToastNotificationPanel;
 
@@ -118,14 +118,14 @@ public class Test extends JFrame {
             if (dark) {
                 EventQueue.invokeLater(() -> {
                     FlatAnimatedLafChange.showSnapshot();
-                    FlatDarculaLaf.setup();
+                    FlatMacDarkLaf.setup();
                     FlatLaf.updateUI();
                     FlatAnimatedLafChange.hideSnapshotWithAnimation();
                 });
             } else {
                 EventQueue.invokeLater(() -> {
                     FlatAnimatedLafChange.showSnapshot();
-                    FlatIntelliJLaf.setup();
+                    FlatMacLightLaf.setup();
                     FlatLaf.updateUI();
                     FlatAnimatedLafChange.hideSnapshotWithAnimation();
                     ;
@@ -136,7 +136,7 @@ public class Test extends JFrame {
 
     public static void main(String[] args) {
         FlatLaf.registerCustomDefaultsSource("raven.toast");
-        FlatIntelliJLaf.setup();
+        FlatMacLightLaf.setup();
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
