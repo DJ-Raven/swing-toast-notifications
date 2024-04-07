@@ -18,6 +18,20 @@ This library not available in maven, try use jar file, by copy to the root proje
     <systemPath>${basedir}/library/swing-toast-notifications-1.0.1.jar</systemPath>
 </dependency>
 ```
+- Other library are use with this library
+``` xml
+<dependency>
+  <groupId>com.formdev</groupId>
+  <artifactId>flatlaf</artifactId>
+  <version>3.4.1</version>
+</dependency>
+
+<dependency>
+  <groupId>com.formdev</groupId>
+  <artifactId>flatlaf-extras</artifactId>
+  <version>3.4.1</version>
+</dependency>
+```
 ## Getting started
 
 - Import flatlaf library and flatlaf extras to your project
