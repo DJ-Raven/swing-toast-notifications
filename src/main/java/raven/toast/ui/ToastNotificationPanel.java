@@ -93,7 +93,7 @@ public class ToastNotificationPanel extends JPanel {
         if (icon != null) {
             return icon;
         }
-        FlatSVGIcon svgIcon = new FlatSVGIcon("raven/toast/svg/" + key + ".svg");
+        FlatSVGIcon svgIcon = new FlatSVGIcon(getClass().getResource("/raven/toast/svg/" + key + ".svg"));
         FlatSVGIcon.ColorFilter colorFilter = new FlatSVGIcon.ColorFilter();
         colorFilter.add(new Color(150, 150, 150), getDefaultColor());
         svgIcon.setColorFilter(colorFilter);
