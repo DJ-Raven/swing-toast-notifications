@@ -19,67 +19,44 @@ import java.util.function.Consumer;
 /**
  * <!-- FlatLaf Property -->
  * <p>
- * Toast.outlineWidth                   int         0       (default)
- * Toast.iconTextGap                    int         5       (default)
- * Toast.closeButtonGap                 int         5       (default)
- * Toast.arc                            int         20      (default)
- * Toast.horizontalGap                  int         10      (default)
+ * Toast.outlineWidth int 0 (default) Toast.iconTextGap int 5 (default)
+ * Toast.closeButtonGap int 5 (default) Toast.arc int 20 (default)
+ * Toast.horizontalGap int 10 (default)
  * <p>
- * Toast.limit                          int         -1      (default)   -1 as unlimited
- * Toast.duration                       long        2500    (default)
- * Toast.animation                      int         200     (default)
- * Toast.animationResolution            int         5       (default)
- * Toast.animationMove                  int         10      (default)
- * Toast.minimumWidth                   int         50      (default)
- * Toast.maximumWidth                   int         -1      (default)   -1 as not set
+ * Toast.limit int -1 (default) -1 as unlimited Toast.duration long 2500
+ * (default) Toast.animation int 200 (default) Toast.animationResolution int 5
+ * (default) Toast.animationMove int 10 (default) Toast.minimumWidth int 50
+ * (default) Toast.maximumWidth int -1 (default) -1 as not set
  * <p>
- * Toast.shadowColor                    Color
- * Toast.shadowOpacity                  float       0.1f    (default)
- * Toast.shadowInsets                   Insets      0,0,6,6 (default)
+ * Toast.shadowColor Color Toast.shadowOpacity float 0.1f (default)
+ * Toast.shadowInsets Insets 0,0,6,6 (default)
  * <p>
- * Toast.useEffect                      boolean     true    (default)
- * Toast.effectWidth                    float       0.5f    (default)   0.5f as 50%
- * Toast.effectOpacity                  float       0.2f    (default)   0 to 1
- * Toast.effectAlignment                String      left    (default)   left, right
- * Toast.effectColor                    Color
- * Toast.success.effectColor            Color
- * Toast.info.effectColor               Color
- * Toast.warning.effectColor            Color
- * Toast.error.effectColor              Color
+ * Toast.useEffect boolean true (default) Toast.effectWidth float 0.5f (default)
+ * 0.5f as 50% Toast.effectOpacity float 0.2f (default) 0 to 1
+ * Toast.effectAlignment String left (default) left, right Toast.effectColor
+ * Color Toast.success.effectColor Color Toast.info.effectColor Color
+ * Toast.warning.effectColor Color Toast.error.effectColor Color
  * <p>
- * Toast.outlineColor                   Color
- * Toast.foreground                     Color
- * Toast.background                     Color
+ * Toast.outlineColor Color Toast.foreground Color Toast.background Color
  * <p>
- * Toast.success.outlineColor           Color
- * Toast.success.foreground             Color
- * Toast.success.background             Color
- * Toast.info.outlineColor              Color
- * Toast.info.foreground                Color
- * Toast.info.background                Color
- * Toast.warning.outlineColor           Color
- * Toast.warning.foreground             Color
- * Toast.warning.background             Color
- * Toast.error.outlineColor             Color
- * Toast.error.foreground               Color
- * Toast.error.background               Color
+ * Toast.success.outlineColor Color Toast.success.foreground Color
+ * Toast.success.background Color Toast.info.outlineColor Color
+ * Toast.info.foreground Color Toast.info.background Color
+ * Toast.warning.outlineColor Color Toast.warning.foreground Color
+ * Toast.warning.background Color Toast.error.outlineColor Color
+ * Toast.error.foreground Color Toast.error.background Color
  * <p>
- * Toast.frameInsets                    Insets      10,10,10,10     (default)
- * Toast.margin                         Insets      8,8,8,8         (default)
+ * Toast.frameInsets Insets 10,10,10,10 (default) Toast.margin Insets 8,8,8,8
+ * (default)
  * <p>
- * Toast.showCloseButton                boolean     true            (default)
- * Toast.closeIconColor                 Color
+ * Toast.showCloseButton boolean true (default) Toast.closeIconColor Color
  *
  * <p>
  * <!-- UIManager -->
  * <p>
- * Toast.success.icon                   Icon
- * Toast.info.icon                      Icon
- * Toast.warning.icon                   Icon
- * Toast.error.icon                     Icon
- * Toast.closeIcon                      Icon
+ * Toast.success.icon Icon Toast.info.icon Icon Toast.warning.icon Icon
+ * Toast.error.icon Icon Toast.closeIcon Icon
  */
-
 /**
  * @author Raven
  */
@@ -87,10 +64,16 @@ public class Notifications {
 
     private static Notifications instance;
     private JFrame frame;
-    private final Map<Location, List<NotificationAnimation>> lists = new HashMap<>();
+    private Map<Location, List<NotificationAnimation>> lists = new HashMap<>();
     private final NotificationHolder notificationHolder = new NotificationHolder();
 
     private ComponentListener windowEvent;
+
+    public Notifications() {
+        for (Location loc : Location.values()) {
+            lists.put(loc, new ArrayList<>());
+        }
+    }
 
     private void installEvent(JFrame frame) {
         if (windowEvent == null && frame != null) {
@@ -253,7 +236,7 @@ public class Notifications {
     public enum Type {
         SUCCESS, INFO, WARNING, ERROR
     }
-
+    
     public enum Location {
         TOP_LEFT, TOP_CENTER, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
     }
@@ -409,12 +392,18 @@ public class Notifications {
         private int getLocation(NotificationAnimation notification) {
             int height = 0;
             List<NotificationAnimation> list = lists.get(location);
+            if (list == null) {
+                return height;
+            }
             for (int i = 0; i < list.size(); i++) {
                 NotificationAnimation n = list.get(i);
+                if (n == null) {
+                    continue;
+                }
                 if (notification == n) {
                     return height;
                 }
-                double v = n.animate * (list.get(i).window.getHeight() + UIScale.scale(horizontalSpace));
+                double v = n.animate * (n.window.getHeight() + UIScale.scale(horizontalSpace));
                 height += top ? v : -v;
             }
             return height;
@@ -422,6 +411,10 @@ public class Notifications {
 
         private void update(NotificationAnimation except) {
             List<NotificationAnimation> list = lists.get(location);
+            if (list == null) {
+                list = new ArrayList<>();
+                lists.put(location, list);
+            }
             for (int i = 0; i < list.size(); i++) {
                 NotificationAnimation n = list.get(i);
                 if (n != except) {
