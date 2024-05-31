@@ -65,8 +65,11 @@ public class DropShadowBorder extends EmptyBorder {
         int arc = FlatPropertiesLaf.getStyleableValue(com, "arc");
         boolean useEffect = FlatPropertiesLaf.getStyleableValue(com, "useEffect");
         if (shadowImage == null || !shadowColor.equals(lastShadowColor) || width != lastWidth || height != lastHeight || shadowSize != lastShadowSize || shadowOpacity != lastShadowOpacity || arc != lastArc) {
+            if (shadowImage != null) {
+                shadowImage.flush();
+                shadowImage = null;
+            }
             shadowImage = createShadowImage(width, height, arc);
-
             lastShadowColor = shadowColor;
             lastWidth = width;
             lastHeight = height;

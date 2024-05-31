@@ -4,6 +4,7 @@ import com.formdev.flatlaf.ui.FlatUIUtils;
 import com.formdev.flatlaf.util.Animator;
 import com.formdev.flatlaf.util.UIScale;
 import raven.toast.ui.ToastNotificationPanel;
+import raven.toast.util.NotificationCache;
 import raven.toast.util.NotificationHolder;
 import raven.toast.util.UIUtils;
 
@@ -87,6 +88,7 @@ public class Notifications {
 
     private static Notifications instance;
     private JFrame frame;
+    private final NotificationCache cache = new NotificationCache();
     private final Map<Location, List<NotificationAnimation>> lists = new HashMap<>();
     private final NotificationHolder notificationHolder = new NotificationHolder();
 
@@ -156,7 +158,9 @@ public class Notifications {
     }
 
     public void show(Type type, Location location, long duration, String message) {
-        initStart(new NotificationAnimation(type, location, duration, message), duration);
+        NotificationAnimation notificationAnimation = createNotification();
+        notificationAnimation.init(type, location, duration, message);
+        initStart(notificationAnimation, duration);
     }
 
     public void show(JComponent component) {
@@ -169,7 +173,9 @@ public class Notifications {
     }
 
     public void show(Location location, long duration, JComponent component) {
-        initStart(new NotificationAnimation(location, duration, component), duration);
+        NotificationAnimation notificationAnimation = createNotification();
+        notificationAnimation.init(location, duration, component);
+        initStart(notificationAnimation, duration);
     }
 
     private synchronized boolean initStart(NotificationAnimation notificationAnimation, long duration) {
@@ -181,6 +187,14 @@ public class Notifications {
             notificationHolder.hold(notificationAnimation);
             return false;
         }
+    }
+
+    private NotificationAnimation createNotification() {
+        NotificationAnimation notificationAnimation = cache.get();
+        if (notificationAnimation != null) {
+            return notificationAnimation;
+        }
+        return new NotificationAnimation();
     }
 
     private synchronized void notificationClose(NotificationAnimation notificationAnimation) {
@@ -225,12 +239,6 @@ public class Notifications {
         notificationHolder.clearHold(location);
     }
 
-    protected ToastNotificationPanel createNotification(Type type, String message) {
-        ToastNotificationPanel toastNotificationPanel = new ToastNotificationPanel();
-        toastNotificationPanel.set(type, message);
-        return toastNotificationPanel;
-    }
-
     private synchronized void updateList(Location key, NotificationAnimation values, boolean add) {
         if (add) {
             if (lists.containsKey(key)) {
@@ -266,6 +274,7 @@ public class Notifications {
         private float animate;
         private int x;
         private int y;
+        private ToastNotificationPanel toastNotificationPanel;
         private Location location;
         private long duration;
         private Insets frameInsets;
@@ -274,28 +283,37 @@ public class Notifications {
         private boolean top;
         private boolean close = false;
 
-        public NotificationAnimation(Type type, Location location, long duration, String message) {
+        public NotificationAnimation() {
             installDefault();
+            window = new JWindow(frame);
+        }
+
+        public void init(Type type, Location location, long duration, String message) {
             this.location = location;
             this.duration = duration;
-            window = new JWindow(frame);
-            ToastNotificationPanel toastNotificationPanel = createNotification(type, message);
-            toastNotificationPanel.putClientProperty(ToastClientProperties.TOAST_CLOSE_CALLBACK, (Consumer) o -> close());
+            toastNotificationPanel = createNotification(type, message);
             window.setContentPane(toastNotificationPanel);
             window.setFocusableWindowState(false);
             window.pack();
             toastNotificationPanel.setDialog(window);
         }
 
-        public NotificationAnimation(Location location, long duration, JComponent component) {
-            installDefault();
+        public void init(Location location, long duration, JComponent component) {
             this.location = location;
             this.duration = duration;
-            window = new JWindow(frame);
             window.setBackground(new Color(0, 0, 0, 0));
             window.setContentPane(component);
             window.setFocusableWindowState(false);
             window.setSize(component.getPreferredSize());
+        }
+
+        private ToastNotificationPanel createNotification(Type type, String message) {
+            if (toastNotificationPanel == null) {
+                toastNotificationPanel = new ToastNotificationPanel();
+                toastNotificationPanel.putClientProperty(ToastClientProperties.TOAST_CLOSE_CALLBACK, (Consumer) o -> close());
+            }
+            toastNotificationPanel.set(type, message);
+            return toastNotificationPanel;
         }
 
         private void installDefault() {
@@ -307,40 +325,47 @@ public class Notifications {
         public void start() {
             int animation = FlatUIUtils.getUIInt("Toast.animation", 200);
             int resolution = FlatUIUtils.getUIInt("Toast.animationResolution", 5);
-            animator = new Animator(animation, new Animator.TimingTarget() {
-                @Override
-                public void begin() {
-                    if (show) {
-                        updateList(location, NotificationAnimation.this, true);
-                        installLocation();
+            if (animator == null) {
+                animator = new Animator(animation, new Animator.TimingTarget() {
+                    @Override
+                    public void begin() {
+                        if (show) {
+                            updateList(location, NotificationAnimation.this, true);
+                            installLocation();
+                        }
                     }
-                }
 
-                @Override
-                public void timingEvent(float f) {
-                    animate = show ? f : 1f - f;
-                    updateLocation(true);
-                }
-
-                @Override
-                public void end() {
-                    if (show && close == false) {
-                        SwingUtilities.invokeLater(() -> {
-                            new Thread(() -> {
-                                sleep(duration);
-                                if (close == false) {
-                                    show = false;
-                                    animator.start();
-                                }
-                            }).start();
-                        });
-                    } else {
-                        updateList(location, NotificationAnimation.this, false);
-                        window.dispose();
-                        notificationClose(NotificationAnimation.this);
+                    @Override
+                    public void timingEvent(float f) {
+                        animate = show ? f : 1f - f;
+                        updateLocation(true);
                     }
-                }
-            });
+
+                    @Override
+                    public void end() {
+                        if (show && close == false) {
+                            SwingUtilities.invokeLater(() -> {
+                                new Thread(() -> {
+                                    sleep(duration);
+                                    if (close == false) {
+                                        show = false;
+                                        animator.start();
+                                    }
+                                }).start();
+                            });
+                        } else {
+                            updateList(location, NotificationAnimation.this, false);
+                            cache.put(NotificationAnimation.this);
+                            window.dispose();
+                            notificationClose(NotificationAnimation.this);
+                        }
+                    }
+                });
+            }
+            show = true;
+            close = false;
+            animate = 0f;
+            animator.setDuration(animation);
             animator.setResolution(resolution);
             animator.start();
         }
