@@ -18,7 +18,7 @@ public class NotificationCache {
             if (cache.isEmpty()) {
                 return null;
             }
-            System.out.println("get cache : " + cache.size());
+            System.out.println("cache notification : " + cache.size());
             Notifications.NotificationAnimation data = cache.get(0);
             cache.remove(data);
             return data;

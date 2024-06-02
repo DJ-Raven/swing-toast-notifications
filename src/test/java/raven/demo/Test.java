@@ -24,7 +24,7 @@ public class Test extends JFrame {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Notifications.getInstance().show(getRandomType(), Notifications.Location.TOP_RIGHT, getRandomText());
+                Notifications.getInstance().show(getRandomType(), Notifications.Location.TOP_RIGHT, "Hello");
             }
         });
         JButton cmdMode = new JButton("Mode Light");

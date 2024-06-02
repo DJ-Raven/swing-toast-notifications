@@ -4,6 +4,7 @@ import com.formdev.flatlaf.FlatPropertiesLaf;
 import com.formdev.flatlaf.ui.FlatStylingSupport.Styleable;
 import com.formdev.flatlaf.ui.FlatUIUtils;
 import com.formdev.flatlaf.util.UIScale;
+import raven.toast.util.ImageShadowCache;
 import raven.toast.util.ShadowRenderer;
 
 import javax.swing.*;
@@ -65,11 +66,14 @@ public class DropShadowBorder extends EmptyBorder {
         int arc = FlatPropertiesLaf.getStyleableValue(com, "arc");
         boolean useEffect = FlatPropertiesLaf.getStyleableValue(com, "useEffect");
         if (shadowImage == null || !shadowColor.equals(lastShadowColor) || width != lastWidth || height != lastHeight || shadowSize != lastShadowSize || shadowOpacity != lastShadowOpacity || arc != lastArc) {
-            if (shadowImage != null) {
-                shadowImage.flush();
-                shadowImage = null;
+            String key = shadowColor.getRGB() + "/" + width + "/" + height + "/" + shadowSize + "/" + shadowOpacity + "/" + lastArc;
+            Image image = ImageShadowCache.getInstance().get(key);
+            if (image == null) {
+                shadowImage = createShadowImage(width, height, arc);
+                ImageShadowCache.getInstance().put(key, shadowImage);
+            } else {
+                shadowImage = image;
             }
-            shadowImage = createShadowImage(width, height, arc);
             lastShadowColor = shadowColor;
             lastWidth = width;
             lastHeight = height;
