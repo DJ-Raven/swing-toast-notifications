@@ -1,5 +1,4 @@
 package raven.toast.util;
-
 import raven.toast.Notifications;
 
 import java.util.ArrayList;

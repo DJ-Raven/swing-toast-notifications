@@ -1,12 +1,12 @@
 package raven.toast.util;
 
 import java.awt.*;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ImageShadowCache {
+public class ImageShadowCache extends LinkedHashMap<String, Image> {
     private static ImageShadowCache instance;
-    private Map<String, Image> cache;
+    private static final int capacity = 10;
 
     public static ImageShadowCache getInstance() {
         if (instance == null) {
@@ -16,15 +16,21 @@ public class ImageShadowCache {
     }
 
     private ImageShadowCache() {
-        cache = new HashMap<>();
+        super(capacity);
     }
 
-    public void put(String key, Image image) {
-        cache.put(key, image);
+    @Override
+    protected boolean removeEldestEntry(Map.Entry<String, Image> eldest) {
+        boolean shouldRemove = size() > capacity;
+        if (shouldRemove) {
+            onRemoveEldestEntry(eldest);
+        }
+        return shouldRemove;
     }
 
-    public Image get(String key) {
-        System.out.println("cache image : " + cache.size());
-        return cache.get(key);
+    protected void onRemoveEldestEntry(Map.Entry<String, Image> eldest) {
+        if (eldest.getValue() != null) {
+            eldest.getValue().flush();
+        }
     }
 }
