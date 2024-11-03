@@ -11,6 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.Random;
 
 public class Test extends JFrame {
@@ -57,6 +59,38 @@ public class Test extends JFrame {
         ToastNotificationPanel panel = new ToastNotificationPanel();
         panel.set(Notifications.Type.INFO, "Hello my name is raven\nThis new Toast Panel Notification");
         getContentPane().add(panel);
+        testMemory();
+    }
+
+
+    private void testMemory() {
+        new Thread(
+                () -> {
+                    while (true) {
+                        MemoryUsage memoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+                        System.out.println(formatSize(memoryUsage.getUsed()) + " of " + formatSize(memoryUsage.getCommitted()));
+                        sleep();
+                    }
+                }
+        ).start();
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public String formatSize(long bytes) {
+        int unit = 1024;
+        if (bytes < unit) {
+            return bytes + " B";
+        }
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = "KMGTPE".charAt(exp - 1) + "";
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
 
