@@ -8,7 +8,12 @@
     <artifactId>swing-toast-notifications</artifactId>
     <version>1.0.4.1</version>
 	<description>Toast notifications library</description>
-
+	<distributionManagement>
+		<repository>
+			<id>1042571086</id>
+			<url>https://github.com/Spike271/swing-toast-notifications.git</url>
+		</repository>
+	</distributionManagement>
 	<build>
 		<plugins>
 			<plugin>
