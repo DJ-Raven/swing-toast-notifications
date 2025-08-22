@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 9
+          java-version: 11
 
       # Maven:
       - name: Configure Maven settings
