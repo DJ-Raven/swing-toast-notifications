@@ -7,7 +7,7 @@ This swing toast notification used for java desktop application gui swing with f
 
 ## Install
 
-This library is not available in maven, try using a jar file, by copy to the root project `/library/swing-toast-notifications-1.0.3.jar`
+This library is not available in maven, try using a jar file, by copy to the root project `/library/swing-toast-notifications-1.0.4.1.jar`
 
 ``` xml
 <dependency>
