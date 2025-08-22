@@ -9,8 +9,6 @@ import raven.toast.ui.ToastNotificationPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.util.Random;
@@ -22,38 +20,31 @@ public class Test extends JFrame {
         setLocationRelativeTo(null);
         getContentPane().setLayout(new FlowLayout(FlowLayout.LEADING));
         JButton button = new JButton("Show");
-        Notifications.getInstance().setJFrame(this);
         CustomNotification customNotification = new CustomNotification();
         customNotification.setJFrame(this);
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Notifications.getInstance().show(getRandomType(), Notifications.Location.TOP_RIGHT, getRandomText());
-            }
+        button.addActionListener(e -> {
+            Notifications.getInstance().setJFrame(this);
+            Notifications.getInstance().show(getRandomType(), Notifications.Location.TOP_RIGHT, getRandomText());
         });
         JButton cmdMode = new JButton("Mode Light");
-        cmdMode.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (cmdMode.getText().equals("Mode Light")) {
-                    changeMode(true);
-                    cmdMode.setText("Mode Dark");
-                } else {
-                    changeMode(false);
-                    cmdMode.setText("Mode Light");
-                }
+        cmdMode.addActionListener(e -> {
+            if (cmdMode.getText().equals("Mode Light")) {
+                changeMode(true);
+                cmdMode.setText("Mode Dark");
+            } else {
+                changeMode(false);
+                cmdMode.setText("Mode Light");
             }
         });
         getContentPane().add(button);
         getContentPane().add(cmdMode);
 
+        JButton buttonJDialog = new JButton("Show JDialog");
+        buttonJDialog.addActionListener(e -> new TestJDialog(this));
+        getContentPane().add(buttonJDialog);
+
         JButton buttonClear = new JButton("Clear");
-        buttonClear.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Notifications.getInstance().clearAll();
-            }
-        });
+        buttonClear.addActionListener(e -> Notifications.getInstance().clearAll());
         getContentPane().add(buttonClear);
 
         ToastNotificationPanel panel = new ToastNotificationPanel();
@@ -61,7 +52,6 @@ public class Test extends JFrame {
         getContentPane().add(panel);
         testMemory();
     }
-
 
     private void testMemory() {
         new Thread(
@@ -78,9 +68,7 @@ public class Test extends JFrame {
     private void sleep() {
         try {
             Thread.sleep(1000);
-        } catch (Exception e) {
-
-        }
+        } catch (Exception e) {}
     }
 
     public String formatSize(long bytes) {
@@ -92,7 +80,6 @@ public class Test extends JFrame {
         String pre = "KMGTPE".charAt(exp - 1) + "";
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
-
 
     private Notifications.Location getRandomLocation() {
         Random ran = new Random();
@@ -162,20 +149,51 @@ public class Test extends JFrame {
                     FlatMacLightLaf.setup();
                     FlatLaf.updateUI();
                     FlatAnimatedLafChange.hideSnapshotWithAnimation();
-                    ;
                 });
             }
         }
     }
 
+    private static JFrame frame = null;
+
     public static void main(String[] args) {
         FlatLaf.registerCustomDefaultsSource("raven.toast");
         FlatMacLightLaf.setup();
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new Test().setVisible(true);
-            }
-        });
+        frame = new Test();
+        EventQueue.invokeLater(() -> frame.setVisible(true));
+    }
+
+    class TestJDialog extends JDialog
+    {
+        public TestJDialog(JFrame parent)
+        {
+            super(parent, true);
+            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            setSize(700, 568);
+            setLocationRelativeTo(parent);
+            getContentPane().setLayout(new FlowLayout(FlowLayout.LEADING));
+            JButton button = new JButton("Show Notifications");
+            Notifications.getInstance().setJDialog(this);
+            CustomNotification customNotification = new CustomNotification();
+            customNotification.setJDialog(this);
+            button.addActionListener(e -> Notifications.getInstance().show(getRandomType(), Notifications.Location.TOP_RIGHT, getRandomText()));
+            JButton cmdMode = new JButton(FlatLaf.isLafDark() ? "Mode Dark" : "Mode Light");
+            cmdMode.addActionListener(e -> {
+                if (cmdMode.getText().equals("Mode Light")) {
+                    changeMode(true);
+                    cmdMode.setText("Mode Dark");
+                } else {
+                    changeMode(false);
+                    cmdMode.setText("Mode Light");
+                }
+            });
+            getContentPane().add(button);
+            getContentPane().add(cmdMode);
+
+            JButton buttonClear = new JButton("Clear");
+            buttonClear.addActionListener(e -> Notifications.getInstance().clearAll());
+            getContentPane().add(buttonClear);
+            setVisible(true);
+        }
     }
 }

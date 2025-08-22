@@ -86,14 +86,19 @@ import java.util.function.Consumer;
 public class Notifications {
 
     private static Notifications instance;
-    private JFrame frame;
+    private Window owner;
+    private Window currentWindow;
     private final Map<Location, List<NotificationAnimation>> lists = new HashMap<>();
     private final NotificationHolder notificationHolder = new NotificationHolder();
 
     private ComponentListener windowEvent;
 
     private void installEvent(JFrame frame) {
-        if (windowEvent == null && frame != null) {
+        if (currentWindow != null && windowEvent != null) {
+            currentWindow.removeComponentListener(windowEvent);
+        }
+
+        if (frame != null) {
             windowEvent = new ComponentAdapter() {
                 @Override
                 public void componentMoved(ComponentEvent e) {
@@ -105,14 +110,35 @@ public class Notifications {
                     move(frame.getBounds());
                 }
             };
-        }
-        if (this.frame != null) {
-            this.frame.removeComponentListener(windowEvent);
-        }
-        if (frame != null) {
             frame.addComponentListener(windowEvent);
         }
-        this.frame = frame;
+
+        this.currentWindow = frame;
+        this.owner = frame;
+    }
+
+    private void installEvent(JDialog dialog) {
+        if (currentWindow != null && windowEvent != null) {
+            currentWindow.removeComponentListener(windowEvent);
+        }
+
+        if (dialog != null) {
+            windowEvent = new ComponentAdapter() {
+                @Override
+                public void componentMoved(ComponentEvent e) {
+                    move(dialog.getBounds());
+                }
+
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    move(dialog.getBounds());
+                }
+            };
+            dialog.addComponentListener(windowEvent);
+        }
+
+        this.currentWindow = dialog;
+        this.owner = dialog;
     }
 
     public static Notifications getInstance() {
@@ -123,7 +149,7 @@ public class Notifications {
     }
 
     private int getCurrentShowCount(Location location) {
-        List list = lists.get(location);
+        List<NotificationAnimation> list = lists.get(location);
         return list == null ? 0 : list.size();
     }
 
@@ -140,6 +166,10 @@ public class Notifications {
 
     public void setJFrame(JFrame frame) {
         installEvent(frame);
+    }
+
+    public void setJDialog(JDialog dialog) {
+        installEvent(dialog);
     }
 
     public void show(Type type, String message) {
@@ -202,14 +232,14 @@ public class Notifications {
                 }
             }
         }
+        System.gc();
     }
 
     public void clear(Location location) {
         notificationHolder.clearHold(location);
         List<NotificationAnimation> list = lists.get(location);
         if (list != null) {
-            for (int i = 0; i < list.size(); i++) {
-                NotificationAnimation an = list.get(i);
+            for (NotificationAnimation an : list) {
                 if (an != null) {
                     an.close();
                 }
@@ -260,14 +290,14 @@ public class Notifications {
 
     public class NotificationAnimation {
 
-        private JWindow window;
+        private final JWindow window;
         private Animator animator;
         private boolean show = true;
         private float animate;
         private int x;
         private int y;
-        private Location location;
-        private long duration;
+        private final Location location;
+        private final long duration;
         private Insets frameInsets;
         private int horizontalSpace;
         private int animationMove;
@@ -278,7 +308,7 @@ public class Notifications {
             installDefault();
             this.location = location;
             this.duration = duration;
-            window = new JWindow(frame);
+            window = new JWindow(owner);
             ToastNotificationPanel toastNotificationPanel = createNotification(type, message);
             toastNotificationPanel.putClientProperty(ToastClientProperties.TOAST_CLOSE_CALLBACK, (Consumer) o -> close());
             window.setContentPane(toastNotificationPanel);
@@ -291,7 +321,7 @@ public class Notifications {
             installDefault();
             this.location = location;
             this.duration = duration;
-            window = new JWindow(frame);
+            window = new JWindow(owner);
             window.setBackground(new Color(0, 0, 0, 0));
             window.setContentPane(component);
             window.setFocusableWindowState(false);
@@ -324,16 +354,14 @@ public class Notifications {
 
                 @Override
                 public void end() {
-                    if (show && close == false) {
-                        SwingUtilities.invokeLater(() -> {
-                            new Thread(() -> {
-                                sleep(duration);
-                                if (close == false) {
-                                    show = false;
-                                    animator.start();
-                                }
-                            }).start();
-                        });
+                    if (show && !close) {
+                        SwingUtilities.invokeLater(() -> new Thread(() -> {
+                            sleep(duration);
+                            if (!close) {
+                                show = false;
+                                animator.start();
+                            }
+                        }).start());
                     } else {
                         updateList(location, NotificationAnimation.this, false);
                         window.dispose();
@@ -348,12 +376,12 @@ public class Notifications {
         private void installLocation() {
             Insets insets;
             Rectangle rec;
-            if (frame == null) {
+            if (owner == null) {
                 insets = UIScale.scale(frameInsets);
                 rec = new Rectangle(new Point(0, 0), Toolkit.getDefaultToolkit().getScreenSize());
             } else {
-                insets = UIScale.scale(FlatUIUtils.addInsets(frameInsets, frame.getInsets()));
-                rec = frame.getBounds();
+                insets = UIScale.scale(FlatUIUtils.addInsets(frameInsets, owner.getInsets()));
+                rec = owner.getBounds();
             }
             setupLocation(rec, insets);
             window.setOpacity(0f);
@@ -361,7 +389,9 @@ public class Notifications {
         }
 
         private void move(Rectangle rec) {
-            Insets insets = UIScale.scale(FlatUIUtils.addInsets(frameInsets, frame.getInsets()));
+            Insets insets = (owner != null)
+                    ? UIScale.scale(FlatUIUtils.addInsets(frameInsets, owner.getInsets()))
+                    : UIScale.scale(frameInsets);
             setupLocation(rec, insets);
         }
 
@@ -409,12 +439,11 @@ public class Notifications {
         private int getLocation(NotificationAnimation notification) {
             int height = 0;
             List<NotificationAnimation> list = lists.get(location);
-            for (int i = 0; i < list.size(); i++) {
-                NotificationAnimation n = list.get(i);
+            for (NotificationAnimation n : list) {
                 if (notification == n) {
                     return height;
                 }
-                double v = n.animate * (list.get(i).window.getHeight() + UIScale.scale(horizontalSpace));
+                double v = n.animate * (n.window.getHeight() + UIScale.scale(horizontalSpace));
                 height += top ? v : -v;
             }
             return height;
@@ -422,8 +451,7 @@ public class Notifications {
 
         private void update(NotificationAnimation except) {
             List<NotificationAnimation> list = lists.get(location);
-            for (int i = 0; i < list.size(); i++) {
-                NotificationAnimation n = list.get(i);
+            for (NotificationAnimation n : list) {
                 if (n != except) {
                     n.updateLocation(false);
                 }

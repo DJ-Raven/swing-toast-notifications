@@ -15,8 +15,7 @@ public class NotificationHolder {
 
     public Notifications.NotificationAnimation getHold(Notifications.Location location) {
         synchronized (lock) {
-            for (int i = 0; i < lists.size(); i++) {
-                Notifications.NotificationAnimation n = lists.get(i);
+            for (Notifications.NotificationAnimation n : lists) {
                 if (n.getLocation() == location) {
                     return n;
                 }
