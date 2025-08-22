@@ -23,7 +23,7 @@ jobs:
 
       # Maven:
       - name: Configure Maven settings
-        uses: s4u/maven-settings-action@v
+        uses: s4u/maven-settings-action@v4
         with:
           servers: |
             [{
