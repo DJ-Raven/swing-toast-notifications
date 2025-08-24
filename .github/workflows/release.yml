@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -12,29 +12,51 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-    permissions:
-      contents: write        # to create a GitHub Release
-      packages: write        # to publish to GitHub Packages
+        java-version: ['11']
+      
+    steps:
+    - uses: actions/checkout@v4
 
+    - name: Set up JDK ${{ matrix.java-version }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
+
+    - name: Upload JAR artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: swing-toast-notifications-jar
+        path: target/*.jar
+
+  release:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v4
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
         with:
-          distribution: temurin
-          java-version: 11
-          cache: maven
+          name: swing-toast-notifications-jar
+          path: jar/
+          
+      - name: Extract version from pom.xml
+        id: get_version
+        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
-      - name: Build
-        run: mvn -B -ntp clean package --file pom.xml
-      - name: Publish to GitHub Packages
-        run: mvn -B -ntp deploy -DskipTests --file pom.xml
-
-      - name: Create Release
+# Then update your release step:
+      - name: Create GitHub Release
+        id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
-          files: |
-            **/build/libs/*.jar
-            **/target/*.jar
+          name: Release ${{ env.VERSION }}
+          tag_name: v${{ env.VERSION }}
+          files: jar/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
