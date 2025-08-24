@@ -1,13 +1,13 @@
 # Swing-Toast-Notifications
 
-This swing toast notification used for java desktop application gui swing with flatlaf
+This swing toast notification used for java desktop application gui using swing with flatlaf
 
 <img src="https://github.com/DJ-Raven/swing-toast-notifications/assets/58245926/71965d6a-1fd1-4ab4-b2d7-f7424b9c277e" alt="sample dark" width="450"/>
 <img src="https://github.com/DJ-Raven/swing-toast-notifications/assets/58245926/228a958d-ad02-41df-b1aa-b16f7d88deec" alt="sample light" width="450"/>
 
 ## Install
 
-This library is not available in maven, try using a jar file, by copy to the root project `/library/swing-toast-notifications-1.0.4.1.jar`
+This library is not available in maven, try using a jar file, which you can find in the release section.
 
 ``` xml
 <dependency>
@@ -15,7 +15,7 @@ This library is not available in maven, try using a jar file, by copy to the roo
     <artifactId>swing-toast-notifications</artifactId>
     <version>1.0.4.1</version>
     <scope>system</scope>
-    <systemPath>${basedir}/library/swing-toast-notifications-1.0.3.jar</systemPath>
+    <systemPath>${basedir}/library/swing-toast-notifications-1.0.4.1.jar</systemPath>
 </dependency>
 ```
 - Other libraries which are used with this library
@@ -35,12 +35,16 @@ This library is not available in maven, try using a jar file, by copy to the roo
 ## Getting started
 
 - Import flatlaf library and flatlaf extras to your project
-- And Import swing toast notifications `(check jar file in library folder)`
+- And Import swing toast notifications
 
 ``` java
-//  Setup notifications with jfram
+//  Setup notifications for jframe
 
-Notifications.getInstance().setJFrame(jfram);
+Notifications.getInstance().setJFrame(jframe);
+
+// Setup notifications for JDialog
+
+Notifications.getInstance().setJDialog(jdialog);
 
 //  Show notifications
 
@@ -140,7 +144,7 @@ Toast.frameInsets = 15,15,15,15
 ## Using UI Manager
 
 ``` java
-//  Using flatlaf extras to crate flat svg icon
+//  Using flatlaf extras to create flat svg icon
 //  Use this code in main method
 
 UIManager.put(ToastClientProperties.TOAST_INFO_ICON, new FlatSVGIcon("raven/toast/error.svg"));
@@ -164,6 +168,8 @@ Visit flatlaf for more
   - add properties `Toast.maximumWidth`
   - add properties `Toast.limit`
   - add method `void clearHold()` and `void clearHold(Location location)`
+- `version 1.0.4.1`
+  - added support for JDialog 
 ### Fixed Note
 - `version 1.0.1`
   - fixed notification style properties background

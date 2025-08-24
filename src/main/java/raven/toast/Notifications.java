@@ -16,6 +16,8 @@ import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static java.awt.SystemColor.window;
+
 /**
  * <!-- FlatLaf Property -->
  * <p>
@@ -398,15 +400,15 @@ public class Notifications {
         private void setupLocation(Rectangle rec, Insets insets) {
             if (location == Location.TOP_LEFT) {
                 x = rec.x + insets.left;
-                y = rec.y + insets.top;
+                y = rec.y + insets.top * 2;
                 top = true;
             } else if (location == Location.TOP_CENTER) {
                 x = rec.x + (rec.width - window.getWidth()) / 2;
-                y = rec.y + insets.top;
+                y = rec.y + insets.top * 2;
                 top = true;
             } else if (location == Location.TOP_RIGHT) {
                 x = rec.x + rec.width - (window.getWidth() + insets.right);
-                y = rec.y + insets.top;
+                y = rec.y + insets.top * 2;
                 top = true;
             } else if (location == Location.BOTTOM_LEFT) {
                 x = rec.x + insets.left;
